@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lịch Sử SC NL</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #e8eaf0;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px 12px 60px;
+}
+
+.app {
+  width:100%; max-width:980px;
+  background:#fff; border-radius:10px;
+  box-shadow:0 6px 32px rgba(0,0,0,0.15);
+  overflow:hidden; display:flex; flex-direction:column;
+  min-height:520px;
+}
+
+/* ── Header ── */
+.header { background:#1565C0; flex-shrink:0; }
+.header-top {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px 10px;
+}
+.app-title { color:#fff; font-size:1.2rem; font-weight:700; }
+.header-icons { display:flex; gap:6px; align-items:center; }
+.icon-btn {
+  background:rgba(255,255,255,0.15); border:none; border-radius:6px;
+  color:#fff; font-size:1.05rem; width:34px; height:34px;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background 0.15s;
+}
+.icon-btn:hover { background:rgba(255,255,255,0.3); }
+
+/* Nút Nhập Điện / Nhập Cơ */
+.btn-input {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:6px 14px; border-radius:6px; border:none;
+  font-size:0.8rem; font-weight:700; cursor:pointer;
+  transition:background 0.15s; white-space:nowrap;
+}
+.btn-input-dien { background:rgba(255,220,80,0.22); color:#ffe57f; border:1.5px solid rgba(255,220,80,0.45); }
+.btn-input-dien:hover { background:rgba(255,220,80,0.38); }
+.btn-input-co   { background:rgba(160,210,255,0.22); color:#b3d9ff; border:1.5px solid rgba(160,210,255,0.45); }
+.btn-input-co:hover   { background:rgba(160,210,255,0.38); }
+
+/* ── Tabs ── */
+.tabs { display:flex; }
+.tab {
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:10px 44px 0;
+  color:rgba(255,255,255,0.6); cursor:pointer; font-size:0.88rem;
+  border-bottom:3px solid transparent; transition:color 0.2s,border-color 0.2s;
+  user-select:none; white-space:nowrap;
+}
+.tab:hover { color:rgba(255,255,255,0.9); }
+.tab.active { color:#fff; border-bottom-color:#fff; }
+.tab-icon { font-size:1.2rem; line-height:1; }
+.tab-label { padding-bottom:10px; }
+
+/* ── Search ── */
+.search-area { background:#1565C0; padding:12px 18px 16px; }
+.search-row {
+  display:flex; align-items:center;
+  background:rgba(255,255,255,0.18); border-radius:8px;
+  padding:9px 12px 9px 14px; gap:10px; position:relative;
+}
+.search-row:focus-within { background:rgba(255,255,255,0.26); }
+.ico-search { color:rgba(255,255,255,0.75); font-size:1rem; flex-shrink:0; }
+.search-input {
+  flex:1; border:none; background:transparent;
+  color:#fff; font-size:0.95rem; outline:none; min-width:0;
+}
+.search-input::placeholder { color:rgba(255,255,255,0.55); }
+.btn-find {
+  background:#fff; color:#1565C0; border:none;
+  border-radius:20px; padding:7px 22px;
+  font-size:0.88rem; font-weight:700; cursor:pointer; flex-shrink:0;
+}
+.btn-find:hover { background:#e3f2fd; }
+
+/* ── Suggestions ── */
+.suggestions {
+  position:absolute; top:calc(100% + 8px); left:0; right:0;
+  background:#fff; border-radius:8px;
+  box-shadow:0 6px 28px rgba(0,0,0,0.22);
+  max-height:310px; overflow-y:auto; z-index:300; display:none;
+}
+.suggestions.open { display:block; }
+.suggestions::-webkit-scrollbar { width:5px; }
+.suggestions::-webkit-scrollbar-thumb { background:#ccc; border-radius:3px; }
+.sug-item { padding:11px 16px; cursor:pointer; border-bottom:1px solid #f0f0f0; transition:background 0.12s; }
+.sug-item:last-child { border-bottom:none; }
+.sug-item:hover,.sug-item.focused { background:#e3f2fd; }
+.sug-name { font-size:0.9rem; font-weight:600; color:#212121; display:flex; align-items:center; flex-wrap:wrap; gap:6px; }
+.sug-spec { font-size:0.78rem; color:#757575; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.badge { font-size:0.62rem; padding:2px 7px; border-radius:4px; font-weight:700; flex-shrink:0; }
+.badge-b { background:#e3f2fd; color:#1565C0; }
+.badge-c { background:#fff8e1; color:#f57f17; }
+.sug-empty { padding:18px; text-align:center; color:#9e9e9e; font-size:0.88rem; font-style:italic; }
+mark { background:#fff176; color:inherit; border-radius:2px; padding:0 1px; }
+
+/* ── Content ── */
+.content { flex:1; background:#fff; overflow-y:auto; min-height:0; }
+
+.empty-state {
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; padding:56px 20px 40px; text-align:center;
+}
+.empty-icon { font-size:4rem; color:#bdbdbd; margin-bottom:16px; }
+.empty-title { font-size:1.05rem; color:#555; font-weight:600; margin-bottom:6px; }
+.empty-sub { font-size:0.83rem; color:#9e9e9e; margin-bottom:22px; }
+.chips { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; max-width:560px; }
+.chip {
+  border:1.5px solid #ddd; border-radius:20px; padding:5px 15px;
+  font-size:0.83rem; color:#444; cursor:pointer; background:#fff; transition:all 0.15s;
+}
+.chip:hover { border-color:#1565C0; color:#1565C0; background:#e8f0fe; }
+
+.loading-state { display:flex; flex-direction:column; align-items:center; padding:60px 20px; gap:14px; color:#9e9e9e; }
+.spinner { width:32px; height:32px; border:3px solid #e0e0e0; border-top-color:#1565C0; border-radius:50%; animation:spin 0.75s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ── Result ── */
+.result-card { display:none; padding:28px 28px 20px; }
+.result-card.visible { display:block; animation:fadeIn 0.2s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+.result-header { display:flex; align-items:center; gap:10px; margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid #e0e0e0; }
+.result-mode-badge { font-size:0.7rem; font-weight:700; padding:3px 10px; border-radius:4px; }
+.badge-dien { background:#fff8e1; color:#f57f17; border:1px solid #ffe082; }
+.badge-co   { background:#e3f2fd; color:#1565C0; border:1px solid #90caf9; }
+.result-device-name { font-size:1.08rem; font-weight:700; color:#1a1a1a; }
+.result-field { margin-bottom:18px; }
+.result-field:last-child { margin-bottom:0; }
+.field-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:#9e9e9e; margin-bottom:6px; font-weight:600; }
+.field-value {
+  font-size:0.93rem; color:#212121; line-height:1.65;
+  background:#f8f9fa; padding:12px 16px; border-radius:6px;
+  border-left:3px solid #1565C0; white-space:pre-wrap; word-break:break-word;
+}
+.field-value.empty { color:#bdbdbd; font-style:italic; border-left-color:#e0e0e0; }
+
+/* ── Footer ── */
+.footer-logo {
+  text-align:right; padding:10px 20px 14px;
+  font-size:0.78rem; color:#1565C0; font-style:italic; font-weight:600;
+  border-top:1px solid #f0f0f0;
+}
+
+/* ════ SETTINGS MODAL ════ */
+.overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; display:none; align-items:center; justify-content:center; }
+.overlay.open { display:flex; }
+.modal { background:#fff; border-radius:12px; width:90%; max-width:520px; box-shadow:0 12px 40px rgba(0,0,0,0.25); overflow:hidden; animation:popIn 0.2s ease; }
+@keyframes popIn { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+.modal-header { background:#1565C0; color:#fff; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; }
+.modal-header h3 { font-size:1rem; font-weight:700; }
+.modal-close { background:none; border:none; color:rgba(255,255,255,0.8); font-size:1.3rem; cursor:pointer; }
+.modal-close:hover { color:#fff; }
+.modal-body { padding:22px 22px 8px; }
+.form-group { margin-bottom:20px; }
+.form-group label { display:block; font-size:0.78rem; font-weight:700; color:#444; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px; }
+.form-group input { width:100%; padding:10px 12px; border:1.5px solid #ddd; border-radius:7px; font-size:0.88rem; color:#333; outline:none; transition:border-color 0.2s; }
+.form-group input:focus { border-color:#1565C0; }
+.form-hint { font-size:0.73rem; color:#9e9e9e; margin-top:5px; line-height:1.4; }
+.modal-footer { padding:12px 22px 20px; display:flex; gap:10px; justify-content:flex-end; align-items:center; }
+.btn-cancel { padding:9px 20px; border:1.5px solid #ddd; border-radius:7px; background:#fff; color:#666; font-size:0.88rem; cursor:pointer; }
+.btn-cancel:hover { background:#f5f5f5; }
+.btn-save { padding:9px 24px; border:none; border-radius:7px; background:#1565C0; color:#fff; font-size:0.88rem; font-weight:700; cursor:pointer; }
+.btn-save:hover { background:#1976D2; }
+.save-notice { font-size:0.78rem; color:#4caf50; font-weight:600; display:none; align-items:center; gap:4px; flex:1; }
+.save-notice.show { display:flex; }
+
+@media (max-width:600px) {
+  .tab { padding:10px 18px 0; font-size:0.8rem; }
+  .header-icons { gap:4px; }
+  .btn-input { padding:5px 10px; font-size:0.75rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="header-top">
+      <div class="app-title">Lịch Sử SC NL</div>
+      <div class="header-icons">
+        <button class="btn-input btn-input-dien" onclick="openLink('dien')" title="Mở Google Sheets Điện">⚡ Nhập Điện</button>
+        <button class="btn-input btn-input-co"   onclick="openLink('co')"   title="Mở Google Sheets Cơ">⚙ Nhập Cơ</button>
+        <button class="icon-btn" onclick="openSettings()" title="Cài đặt">⚙</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab" id="tabDien" onclick="selectMode('dien')">
+        <span class="tab-icon">⚡</span>
+        <span class="tab-label" id="tabDienLabel">Điện</span>
+      </div>
+      <div class="tab" id="tabCo" onclick="selectMode('co')">
+        <span class="tab-icon">⚙</span>
+        <span class="tab-label" id="tabCoLabel">Cơ</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="search-area">
+    <div class="search-row">
+      <span class="ico-search">🔍</span>
+      <input class="search-input" id="searchInput" type="text"
+        placeholder="Chọn tab Điện hoặc Cơ để bắt đầu..."
+        autocomplete="off" spellcheck="false">
+      <button class="btn-find" onclick="onSearch()">Tìm</button>
+      <div class="suggestions" id="suggestions"></div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-title">Nhập từ khóa để tìm kiếm</div>
+      <div class="empty-sub" id="emptySubText">Chọn chế độ <strong>Điện</strong> hoặc <strong>Cơ</strong> trước khi tìm kiếm</div>
+      <div class="chips" id="chipsArea" style="display:none"></div>
+    </div>
+    <div class="loading-state" id="loadingState" style="display:none">
+      <div class="spinner"></div>
+      <span id="loadingText">Đang tải dữ liệu...</span>
+    </div>
+    <div class="result-card" id="resultCard">
+      <div class="result-header">
+        <span class="result-mode-badge" id="resultBadge"></span>
+        <span class="result-device-name" id="resultDeviceName"></span>
+      </div>
+      <div class="result-field">
+        <div class="field-label">B — Tên thiết bị</div>
+        <div class="field-value" id="fB"></div>
+      </div>
+      <div class="result-field">
+        <div class="field-label">C — Thông số kỹ thuật</div>
+        <div class="field-value" id="fC"></div>
+      </div>
+      <div class="result-field">
+        <div class="field-label">F — Quá trình sửa chữa / Lịch sử</div>
+        <div class="field-value" id="fF"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-logo">A product by Thuanmv</div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>⚙ Cài đặt nguồn dữ liệu</h3>
+      <button class="modal-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>⚡ Link Google Sheets — Điện</label>
+        <input type="text" id="inputUrlDien" placeholder="https://docs.google.com/spreadsheets/d/...">
+        <div class="form-hint">Dán link Google Sheets của sheet Điện (dạng /edit?gid=...)</div>
+      </div>
+      <div class="form-group">
+        <label>⚙ Link Google Sheets — Cơ</label>
+        <input type="text" id="inputUrlCo" placeholder="https://docs.google.com/spreadsheets/d/...">
+        <div class="form-hint">Dán link Google Sheets của sheet Cơ (dạng /edit?gid=...)</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <span class="save-notice" id="saveNotice">✔ Đã lưu — đang tải lại...</span>
+      <button class="btn-cancel" onclick="closeSettings()">Hủy</button>
+      <button class="btn-save" onclick="saveSettings()">Lưu &amp; Áp dụng</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEFAULTS = {
+  dien: 'https://docs.google.com/spreadsheets/d/1tM94cewS3P7BLtOTBT1KtUNX9eTokjJG/edit?usp=sharing',
+  co:   'https://docs.google.com/spreadsheets/d/162bAlPrDAw5UuNBQgD-lzBkUsrtlIXna/edit?usp=sharing'
+};
+const CHIPS = {
+  dien: ['Động cơ','Biến tần','Tủ điện','Cáp điện','Relay','Contactor'],
+  co:   ['Hộp giảm tốc','Băng tải','Bơm','Bạc đạn','Van','Khớp nối']
+};
+
+const cache = {};
+let currentMode = null, activeSugs = [], focusedIdx = -1;
+
+function getUrl(m) { return localStorage.getItem('url_'+m) || DEFAULTS[m]; }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function norm(s) { return (s||'').toLowerCase(); }
+function hi(text,q) {
+  const i=norm(text).indexOf(norm(q));
+  if(i<0) return esc(text);
+  return esc(text.slice(0,i))+'<mark>'+esc(text.slice(i,i+q.length))+'</mark>'+esc(text.slice(i+q.length));
+}
+
+function parseCSV(text) {
+  const rows=[]; let row=[],cell='',q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(c==='"'){if(q&&text[i+1]==='"'){cell+='"';i++;}else q=!q;}
+    else if(c===','&&!q){row.push(cell);cell='';}
+    else if((c==='\n'||c==='\r')&&!q){
+      if(c==='\r'&&text[i+1]==='\n')i++;
+      row.push(cell);cell='';rows.push(row);row=[];
+    }else cell+=c;
+  }
+  row.push(cell);if(row.some(x=>x.trim()))rows.push(row);
+  return rows;
+}
+
+function toCsvUrl(url) {
+  const m = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  if (!m) return null;
+  const id = m[1];
+  const gm = url.match(/[?&#]gid=(\d+)/);
+  return gm
+    ? `https://docs.google.com/spreadsheets/d/${id}/export?format=csv&gid=${gm[1]}`
+    : `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
+}
+
+async function loadSheet(m) {
+  const sheetUrl = getUrl(m);
+  const csvUrl   = toCsvUrl(sheetUrl);
+  if (!csvUrl) throw new Error('Link không hợp lệ. Vào ⚙ Cài đặt để sửa.');
+
+  // Public Google Sheets hỗ trợ CORS — fetch thẳng, không cần proxy
+  let res;
+  try {
+    res = await fetch(csvUrl);
+  } catch(e) {
+    throw new Error('Không kết nối được Google Sheets. Kiểm tra mạng hoặc quyền chia sẻ sheet.');
+  }
+  if (!res.ok) throw new Error(`HTTP ${res.status} — kiểm tra quyền chia sẻ sheet`);
+  const rows = parseCSV(await res.text());
+  return rows.slice(1).filter(r=>(r[1]||'').trim()||(r[2]||'').trim());
+}
+
+async function selectMode(m) {
+  currentMode = m;
+  document.getElementById('tabDien').classList.toggle('active', m==='dien');
+  document.getElementById('tabCo').classList.toggle('active', m==='co');
+  const inp = document.getElementById('searchInput');
+  inp.value=''; closeSug(); hideResult();
+  showLoading(`Đang tải dữ liệu ${m==='dien'?'Điện':'Cơ'}…`);
+  try {
+    const data = await loadSheet(m);
+    cache[m] = data;
+    const lbl = m==='dien'?'Điện':'Cơ';
+    document.getElementById(`tab${m==='dien'?'Dien':'Co'}Label`).textContent=`${lbl} (${data.length})`;
+    inp.placeholder=`Nhập tên thiết bị hoặc thông số ${lbl}…`;
+    showEmpty(data.length, m);
+    inp.focus();
+  } catch(e){ showEmptyError(e.message); }
+}
+
+function showLoading(msg){
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('loadingState').style.display='flex';
+  document.getElementById('resultCard').classList.remove('visible');
+  document.getElementById('loadingText').textContent=msg;
+}
+function showEmpty(count,m){
+  document.getElementById('loadingState').style.display='none';
+  document.getElementById('resultCard').classList.remove('visible');
+  document.getElementById('emptyState').style.display='flex';
+  document.getElementById('emptySubText').innerHTML=`Cơ sở dữ liệu: <strong>${count}</strong> thiết bị`;
+  const area=document.getElementById('chipsArea');
+  area.style.display='flex';
+  area.innerHTML=CHIPS[m].map(c=>`<div class="chip" onclick="quickSearch('${c}')">${c}</div>`).join('');
+}
+function showEmptyError(msg){
+  document.getElementById('loadingState').style.display='none';
+  document.getElementById('emptyState').style.display='flex';
+  document.getElementById('emptySubText').innerHTML=`<span style="color:#e53935">⚠ ${msg}</span>`;
+  const area=document.getElementById('chipsArea');
+  area.style.display='flex';
+  area.innerHTML=`<button onclick="retryLoad()" style="margin-top:4px;padding:9px 26px;border:none;border-radius:20px;background:#1565C0;color:#fff;font-size:.88rem;font-weight:700;cursor:pointer;">🔄 Thử lại</button>`;
+}
+function retryLoad(){ if(currentMode) selectMode(currentMode); }
+function hideResult(){
+  document.getElementById('resultCard').classList.remove('visible');
+  document.getElementById('emptyState').style.display='flex';
+}
+
+function onSearch(){ doSearch(document.getElementById('searchInput').value); }
+function doSearch(rawQ){
+  const q=rawQ.trim();
+  if(!currentMode||!cache[currentMode]){closeSug();return;}
+  closeSug(); if(!q) return;
+  const qLow=norm(q),matches=[];
+  for(const row of cache[currentMode]){
+    const b=row[1]||'',c=row[2]||'';
+    if(norm(b).includes(qLow))      matches.push({row,col:'B'});
+    else if(norm(c).includes(qLow)) matches.push({row,col:'C'});
+    if(matches.length>=15) break;
+  }
+  activeSugs=matches; focusedIdx=-1; renderSug(q);
+}
+function renderSug(q){
+  const box=document.getElementById('suggestions');
+  if(!activeSugs.length){
+    box.innerHTML='<div class="sug-empty">Không tìm thấy kết quả phù hợp</div>';
+    box.classList.add('open');return;
+  }
+  box.innerHTML=activeSugs.map((m,i)=>{
+    const b=m.row[1]||'',c=(m.row[2]||'').slice(0,90);
+    const bH=m.col==='B'?hi(b,q):esc(b),cH=m.col==='C'?hi(c,q):esc(c);
+    const badge=m.col==='B'?'<span class="badge badge-b">Tên</span>':'<span class="badge badge-c">Thông số</span>';
+    return `<div class="sug-item" data-i="${i}" onmousedown="pickSug(${i})">
+      <div class="sug-name">${bH}${badge}</div>
+      ${cH?`<div class="sug-spec">${cH}${(m.row[2]||'').length>90?'…':''}</div>`:''}
+    </div>`;
+  }).join('');
+  box.classList.add('open');
+}
+function closeSug(){ document.getElementById('suggestions').classList.remove('open'); activeSugs=[]; focusedIdx=-1; }
+function pickSug(idx){
+  const m=activeSugs[idx];if(!m)return;
+  document.getElementById('searchInput').value=m.row[1]||'';
+  closeSug(); showResult(m.row);
+}
+function showResult(row){
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('loadingState').style.display='none';
+  const b=row[1]||'',c=row[2]||'',f=row[5]||'';
+  const badge=document.getElementById('resultBadge');
+  badge.textContent=currentMode==='dien'?'⚡ Điện':'⚙ Cơ';
+  badge.className='result-mode-badge '+(currentMode==='dien'?'badge-dien':'badge-co');
+  document.getElementById('resultDeviceName').textContent=b||'(Không rõ tên)';
+  const setF=(id,val,empty)=>{const el=document.getElementById(id);el.textContent=val||empty;el.className='field-value'+(val?'':' empty');};
+  setF('fB',b,'(Không có dữ liệu)');
+  setF('fC',c,'(Không có dữ liệu)');
+  setF('fF',f,'(Chưa có lịch sử sửa chữa)');
+  document.getElementById('resultCard').classList.add('visible');
+}
+function quickSearch(kw){ document.getElementById('searchInput').value=kw; document.getElementById('searchInput').focus(); doSearch(kw); }
+
+const inp=document.getElementById('searchInput');
+inp.addEventListener('input', ()=>doSearch(inp.value));
+inp.addEventListener('focus', ()=>{ if(inp.value.trim()) doSearch(inp.value); });
+inp.addEventListener('blur',  ()=>setTimeout(closeSug,180));
+inp.addEventListener('keydown', e=>{
+  const items=document.querySelectorAll('.sug-item');if(!items.length)return;
+  if(e.key==='ArrowDown'){e.preventDefault();focusedIdx=Math.min(focusedIdx+1,items.length-1);updateFocus(items);}
+  else if(e.key==='ArrowUp'){e.preventDefault();focusedIdx=Math.max(focusedIdx-1,0);updateFocus(items);}
+  else if(e.key==='Enter'){e.preventDefault();if(focusedIdx>=0)pickSug(focusedIdx);else if(activeSugs.length===1)pickSug(0);}
+  else if(e.key==='Escape')closeSug();
+});
+function updateFocus(items){items.forEach((el,i)=>el.classList.toggle('focused',i===focusedIdx));if(focusedIdx>=0)items[focusedIdx].scrollIntoView({block:'nearest'});}
+
+/* Mở link Google Sheets trong tab mới (web version dùng window.open) */
+function openLink(mode){
+  window.open(getUrl(mode), '_blank');
+}
+
+/* Settings */
+function openSettings(){
+  document.getElementById('inputUrlDien').value=getUrl('dien');
+  document.getElementById('inputUrlCo').value=getUrl('co');
+  document.getElementById('saveNotice').classList.remove('show');
+  document.getElementById('overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('inputUrlDien').focus(),150);
+}
+function closeSettings(){ document.getElementById('overlay').classList.remove('open'); }
+function overlayClick(e){ if(e.target===document.getElementById('overlay'))closeSettings(); }
+function saveSettings(){
+  const ud=document.getElementById('inputUrlDien').value.trim();
+  const uc=document.getElementById('inputUrlCo').value.trim();
+  if(ud) localStorage.setItem('url_dien',ud);
+  if(uc) localStorage.setItem('url_co',uc);
+  delete cache['dien']; delete cache['co'];
+  document.getElementById('tabDienLabel').textContent='Điện';
+  document.getElementById('tabCoLabel').textContent='Cơ';
+  document.getElementById('saveNotice').classList.add('show');
+  if(currentMode){setTimeout(()=>{closeSettings();selectMode(currentMode);},900);}
+  else setTimeout(closeSettings,1000);
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape')closeSettings(); });
+</script>
+</body>
+</html>
