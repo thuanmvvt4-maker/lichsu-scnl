@@ -565,9 +565,10 @@ function confirmPw(){
   const val = document.getElementById('pwInput').value;
   const inp = document.getElementById('pwInput');
   if(val === PW){
+    const mode = _pwPendingMode; // lưu lại trước khi closePwModal reset về null
     closePwModal();
-    if(_pwPendingMode === 'settings') openSettings();
-    else window.open(getUrl(_pwPendingMode), '_blank');
+    if(mode === 'settings') openSettings();
+    else window.open(getUrl(mode), '_blank');
   } else {
     inp.classList.remove('error');
     void inp.offsetWidth;
