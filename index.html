@@ -22,7 +22,9 @@ body {
 }
 
 .app {
-  width: 100%; height: 100%;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
   background: #fff;
   display: flex; flex-direction: column;
   overflow: hidden;
@@ -252,6 +254,14 @@ mark { background:#fff176; color:inherit; border-radius:2px; padding:0 1px; }
         <div class="field-label">F — Quá trình sửa chữa / Lịch sử</div>
         <div class="field-value" id="fF"></div>
       </div>
+      <div class="result-field">
+        <div class="field-label">G — Hiện trạng</div>
+        <div class="field-value" id="fG"></div>
+      </div>
+      <div class="result-field">
+        <div class="field-label">H — Công tác đang thực hiện</div>
+        <div class="field-value" id="fH"></div>
+      </div>
     </div>
   </div>
 
@@ -437,7 +447,7 @@ function pickSug(idx){
 function showResult(row){
   document.getElementById('emptyState').style.display='none';
   document.getElementById('loadingState').style.display='none';
-  const b=row[1]||'',c=row[2]||'',f=row[5]||'';
+  const b=row[1]||'',c=row[2]||'',f=row[5]||'',g=row[6]||'',h=row[7]||'';
   const badge=document.getElementById('resultBadge');
   badge.textContent=currentMode==='dien'?'⚡ Điện':'⚙ Cơ';
   badge.className='result-mode-badge '+(currentMode==='dien'?'badge-dien':'badge-co');
@@ -446,6 +456,8 @@ function showResult(row){
   setF('fB',b,'(Không có dữ liệu)');
   setF('fC',c,'(Không có dữ liệu)');
   setF('fF',f,'(Chưa có lịch sử sửa chữa)');
+  setF('fG',g,'(Không có dữ liệu)');
+  setF('fH',h,'(Không có dữ liệu)');
   document.getElementById('resultCard').classList.add('visible');
 }
 function quickSearch(kw){ document.getElementById('searchInput').value=kw; document.getElementById('searchInput').focus(); doSearch(kw); }
