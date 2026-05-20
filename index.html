@@ -98,7 +98,7 @@ body {
   position:absolute; top:calc(100% + 8px); left:0; right:0;
   background:#fff; border-radius:8px;
   box-shadow:0 6px 28px rgba(0,0,0,0.22);
-  max-height:310px; overflow-y:auto; z-index:300; display:none;
+  max-height:520px; overflow-y:auto; z-index:300; display:none;
 }
 .suggestions.open { display:block; }
 .suggestions::-webkit-scrollbar { width:5px; }
@@ -475,7 +475,6 @@ function doSearch(rawQ){
     const b=row[1]||'',c=row[2]||'';
     if(norm(b).includes(qLow))      matches.push({row,col:'B'});
     else if(norm(c).includes(qLow)) matches.push({row,col:'C'});
-    if(matches.length>=15) break;
   }
   activeSugs=matches; focusedIdx=-1; renderSug(q);
 }
