@@ -231,9 +231,9 @@ mark { background:#fff176; color:inherit; border-radius:2px; padding:0 1px; }
     <div class="header-top">
       <div class="app-title">Lịch Sử SC NL</div>
       <div class="header-icons">
-        <button class="btn-input btn-input-dien" onclick="openLink('dien')" title="Mở Google Sheets Điện">⚡ Nhập Điện</button>
-        <button class="btn-input btn-input-co"   onclick="openLink('co')"   title="Mở Google Sheets Cơ">⚙ Nhập Cơ</button>
-        <button class="icon-btn" onclick="openSettings()" title="Cài đặt">⚙</button>
+        <button class="btn-input btn-input-dien" onclick="openLinkWithPw('dien')" title="Mở Google Sheets Điện">⚡ Nhập Điện</button>
+        <button class="btn-input btn-input-co"   onclick="openLinkWithPw('co')"   title="Mở Google Sheets Cơ">⚙ Nhập Cơ</button>
+        <button class="icon-btn" onclick="openLinkWithPw('settings')" title="Cài đặt">⚙</button>
       </div>
     </div>
     <div class="tabs">
@@ -533,14 +533,14 @@ inp.addEventListener('keydown', e=>{
 });
 function updateFocus(items){items.forEach((el,i)=>el.classList.toggle('focused',i===focusedIdx));if(focusedIdx>=0)items[focusedIdx].scrollIntoView({block:'nearest'});}
 
-/* ── Mở link với xác thực mật khẩu ── */
+/* ── Xác thực mật khẩu cho 3 nút ── */
 const PW = '132';
 let _pwPendingMode = null;
 
-function openLink(mode){
+function openLinkWithPw(mode){
   _pwPendingMode = mode;
-  const label = mode === 'dien' ? '⚡ Nhập Điện' : '⚙ Nhập Cơ';
-  document.getElementById('pwModalTitle').textContent = label;
+  const labels = { dien:'⚡ Nhập Điện', co:'⚙ Nhập Cơ', settings:'⚙ Cài đặt' };
+  document.getElementById('pwModalTitle').textContent = labels[mode] || 'Xác nhận';
   document.getElementById('pwInput').value = '';
   document.getElementById('pwErrorMsg').textContent = '';
   document.getElementById('pwInput').type = 'password';
@@ -566,10 +566,11 @@ function confirmPw(){
   const inp = document.getElementById('pwInput');
   if(val === PW){
     closePwModal();
-    window.open(getUrl(_pwPendingMode), '_blank');
+    if(_pwPendingMode === 'settings') openSettings();
+    else window.open(getUrl(_pwPendingMode), '_blank');
   } else {
     inp.classList.remove('error');
-    void inp.offsetWidth; // reflow để chạy lại animation
+    void inp.offsetWidth;
     inp.classList.add('error');
     document.getElementById('pwErrorMsg').textContent = '❌ Mật khẩu không đúng, thử lại';
     inp.value = '';
